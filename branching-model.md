@@ -54,3 +54,10 @@ Main characteristics of Trunk Based Development:
 ~/path/to/project> git push origin release/login
 ```
 * Create a pull request, from the `release/login` branch as the source to the `main` branch as the destination.
+
+
+## TODO
+
+* gitflow
+* more details on git
+  * rebase
