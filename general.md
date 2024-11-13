@@ -99,3 +99,29 @@ core api (v2) - bob
 /v2/transaction -> bob /transaction
 
 ```
+
+## Coding Style
+
+If a certain language has a standard coding style, then dont reinvent the wheel, just use it.
+However, for languages that do not have a standard coding style, such as JavaScript (or TypeScript) -Nextjs, in our case- then you should follow the following:
+* eslint
+* space (2 spaces) over tab
+* [airbnb](https://github.com/airbnb/javascript)
+* overrides
+  * no semicolons
+  * Imports order
+    * builtin
+    * external
+    * parent
+    * sibling
+    * index
+    * object
+    * type
+  * no param reassign (exclusively use const, for immutability)
+  * no any
+* set the text editor to auto format on save (and or on paste)
+
+
+
+
+
