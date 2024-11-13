@@ -290,3 +290,8 @@ We put all the things related to business logic, here.
    ├── interface // as an interface for adapter, our constructors code must only communicate with this interface
    └── tools // common functions 
 ```
+
+## TODO
+
+* golang convention
+* golang project structure
