@@ -122,6 +122,171 @@ However, for languages that do not have a standard coding style, such as JavaScr
 * set the text editor to auto format on save (and or on paste)
 
 
+## Containarisation
+
+### Docker
+
+Every project should have a
+* Dockerfile (for production, multistage)
+* Dockerfile.dev (for development, multistage)
+* docker-compose.yaml (for development)
+
+#### General structure 
+
+```
+# Dockerfile
+
+step #1: install base dependencies
+FROM node:20-alpine AS base
+
+[install base dependencies]
+
+# step #2: install project dependencies
+FROM base AS dependencies
+
+[install project dependencies: pnpm install]
+
+# step #3: build project
+FROM base AS build
+
+[build project]
+
+# step #4: run
+FROM base AS runner
+
+// hot reload for development
+RUN npm install -g nodemon
+
+[run the project]
+```
+
+```
+# docker-compose.dev.yaml
+version: "3.9"
+services:
+  [service_name]:
+    build:
+      context: .
+      dockerfile: .dockerfiles/Dockerfile.dev
+      target: runner
+    container_name: [service_name]
+    env_file: .env // for development, git ignored
+    volumes:
+      - .:/app
+    ports:
+      - 3000:3000
+    networks:
+      - default
+      - bridge-network
+networks:
+  default:
+    driver: bridge
+  bridge-network:
+    external: true
+```
+
+### Orchestration
+
+There needs to be orchestration related configuration files on every project.
+  - .build/build.yaml 
+  - .build/config/kubernetes.yaml
+  - .build/config/istio.yaml
+
+## Project Structure
+
+for programming languages that have a standard project structure, such as Java, Python, Golang, then you should follow the standard structure.
 
 
+### General folder structure
 
+```
+.
+├── .build
+│   ├── config
+│   │   ├── istio-vs-dr.yaml // virtual service and dest rule config
+│   │   ├── istio-vs-gw.yaml // (optional) ingress gateway config
+│   │   └── kubernetes.yaml // service and deployment config
+│   └── build.yaml // build pipeline
+├── .dockerfiles
+│   ├── Dockerfile // production dockerfile
+│   └── Dockerfile.dev // development dockerfile
+.
+.
+.
+├── .env // development env (git ignored)
+├── .env.example // example env (tracked)
+├── CHANGELOG.md 
+├── README.md
+├── docker-compose.dev.yaml // docker compose -f docker-compose.dev.yaml up, to run
+.
+```
+
+### NextJs
+
+For languages that do not have a standard project structure, such as JavaScript (or TypeScript) -Nextjs, in our case- we tend to add extra layering to the project structure, to optimise the automation process of
+
+`Copy a whole folder - paste - find in folder - replace`.
+
+This will not so much a `DRY` principle or not so much a `Clean Code` principle, but it will make the automation process of the project structure much easier.
+
+#### Components
+
+we only put reusable components in the components folder and shadcn's components in the `components/ui` folder.
+
+components/blogSearch.tsx
+
+
+#### Contructors (feel free to change the name)
+
+This will be the folder that will encapsulate a page. 
+
+Implementation
+
+```
+# app/blog/page.tsx
+import Page from '@/contructors/blog/home'
+
+export default Page
+
+
+# app/blog/[id]/page.tsx
+import Page from '@/contructors/blog/detail'
+
+export default Page
+```
+
+Folder structure
+
+```
+.
+└── constructors
+    └── blog    
+        └── home
+            ├── actions
+            │   └── index.ts // server side logic
+            ├── components
+            │   ├── content-result // a big enough child component
+            │   │   ├── actions
+            │   │   │   ├── actions.ts // form related server action
+            │   │   │   └── schema.ts // schema or model for the server action
+            │   │   ├── content-grand-children.ts // grandchildren component
+            │   │   └── content.tsx // 
+            │   ├── content-head.tsx // child component
+            │   ├── content-body.tsx // child component
+            │   ├── content-foot.tsx // child component
+            │   └── content.tsx // parent/main component 
+            └── index.tsx // main function to pass things from server side logic to
+```
+
+#### Services (feel free to change the name)
+
+We put all the things related to business logic, here.
+
+```
+.
+└── services
+   ├── adapter // external abstraction (db connections, sdks, etc)
+   ├── hooks // self explanatory
+   ├── interface // as an interface for adapter, our constructors code must only communicate with this interface
+   └── tools // common functions 
+```
